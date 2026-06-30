@@ -15,8 +15,12 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const PORT = process.env.PORT || 4000
 
 const env = (k, d = '') => process.env[k] || d
-const MINTS = { ansem: env('ANSEM_MINT'), tjr: env('TJR_MINT') }
-const TEAM = { ansem: 'ANSEM', tjr: 'TJR' }
+const MINTS = {
+  ansem: env('ANSEM_MINT', '9cRCn9rGT8V2imeM2BaKs13yhMEais3ruM3rPvTGpump'),
+  tjr: env('TJR_MINT', '4U4U8oXwDyVXGeTffMXds4NAgBgLFwq3wNvTCRTSpump'),
+  luke: env('LUKE_MINT', '86CFcbZBJAqGVnfgnLNcw3tPmfaTigAR2UxbUPYTpump'),
+}
+const TEAM = { ansem: 'ANSEM', tjr: 'TJR', luke: 'LUKE' }
 const HOLDER_COUNT = Number(env('HOLDER_COUNT', '100'))
 const PER_TX = Number(env('PER_TX_TRANSFERS', '5'))
 
@@ -38,6 +42,24 @@ app.get('/api/config', (_req, res) => {
     rpcSet: !!env('SOLANA_RPC_URL'),
   })
 })
+
+// --- KO events from the game (notify only — execution stays manual) ---------
+// The game POSTs each KO here; we record the winner as a "pending airdrop". The
+// operator still reviews + executes manually (guarded by ADMIN_SECRET). No funds
+// move automatically.
+const koEvents = [] // newest first
+app.post('/api/ko-event', (req, res) => {
+  if (!env('ADMIN_SECRET') || String(req.body.secret || '') !== env('ADMIN_SECRET')) {
+    return res.status(401).json({ error: 'unauthorized' })
+  }
+  const winner = String(req.body.winner || '').toLowerCase()
+  if (!MINTS[winner]) return res.status(400).json({ error: 'unknown winner' })
+  koEvents.unshift({ winner, name: TEAM[winner], stage: String(req.body.stage || ''), cycle: Number(req.body.cycle) || 0, ts: Date.now() })
+  if (koEvents.length > 25) koEvents.length = 25
+  console.log(`[ko-event] ${TEAM[winner]} won ${req.body.stage} (cycle ${req.body.cycle})`)
+  res.json({ ok: true })
+})
+app.get('/api/pending', (_req, res) => res.json({ events: koEvents.slice(0, 25) }))
 
 app.post('/api/preview', async (req, res) => {
   try {

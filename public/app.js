@@ -87,6 +87,27 @@ async function execute() {
   }
 }
 
+const fmtAgo = (ts) => { const s = Math.floor((Date.now() - ts) / 1000); return s < 60 ? `${s}s lalu` : s < 3600 ? `${Math.floor(s / 60)}m lalu` : `${Math.floor(s / 3600)}j lalu` }
+
+async function loadPending() {
+  try {
+    const { events } = await (await fetch('/api/pending')).json()
+    if (!events || !events.length) { $('pendingCard').classList.add('hidden'); return }
+    $('pendingCard').classList.remove('hidden')
+    $('pending').innerHTML = events.map((e, i) =>
+      `<button class="ko-chip${i === 0 ? ' latest' : ''}" data-winner="${e.winner}">
+         <b>${e.name}</b> menang <span class="muted">${e.stage === 'final' ? '🏆 Final' : 'Round 1'} · ${fmtAgo(e.ts)}</span>
+       </button>`).join('')
+    document.querySelectorAll('.ko-chip').forEach((b) => b.addEventListener('click', () => {
+      $('winner').value = b.dataset.winner
+      $('amount').focus()
+      $('amount').scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }))
+  } catch { /* ignore */ }
+}
+
 $('previewBtn').addEventListener('click', preview)
 $('execBtn').addEventListener('click', execute)
 loadConfig()
+loadPending()
+setInterval(loadPending, 10000)
