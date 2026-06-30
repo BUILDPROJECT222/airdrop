@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Airdrop Distributor — ANSEM vs TJR</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <h1>🪂 Airdrop Distributor</h1>
+      <p class="lead">Bagikan coin <b>pemenang KO</b> ke <b>top holder token project</b> secara proporsional.</p>
+      <div id="cfg" class="cfg"></div>
+    </header>
+
+    <section class="card">
+      <h2>1 · Atur airdrop</h2>
+      <div class="row">
+        <label>Pemenang KO
+          <select id="winner">
+            <option value="ansem">ANSEM</option>
+            <option value="tjr">TJR</option>
+          </select>
+        </label>
+        <label>Jumlah coin pemenang dibagikan
+          <input id="amount" type="text" inputmode="decimal" placeholder="mis. 1000000" />
+        </label>
+      </div>
+      <button id="previewBtn" class="btn">Preview (dry-run)</button>
+      <p class="hint">Preview tidak mengirim apa pun — cuma menghitung siapa dapat berapa & estimasi biaya.</p>
+    </section>
+
+    <section id="result" class="card hidden">
+      <h2>2 · Hasil preview</h2>
+      <div id="summary" class="summary"></div>
+      <div class="tablewrap">
+        <table id="tbl">
+          <thead><tr><th>#</th><th>Wallet</th><th>Share</th><th>Dapat</th><th>ATA</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <h2>3 · Eksekusi</h2>
+      <p class="warn">⚠️ Ini mengirim token <b>asli</b> dari treasury. Pastikan angka di atas benar.</p>
+      <div class="row">
+        <label>ADMIN_SECRET
+          <input id="secret" type="password" placeholder="passphrase server" />
+        </label>
+      </div>
+      <button id="execBtn" class="btn danger">Kirim airdrop sekarang</button>
+    </section>
+
+    <section id="log" class="card hidden">
+      <h2>Log eksekusi</h2>
+      <div id="logBody" class="logbody"></div>
+    </section>
+  </main>
+  <script src="./app.js"></script>
+</body>
+</html>

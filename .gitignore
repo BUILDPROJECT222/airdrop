@@ -1,0 +1,8 @@
+node_modules
+*.log
+.DS_Store
+
+# NEVER commit the treasury key
+.env
+.env.*
+!.env.example
