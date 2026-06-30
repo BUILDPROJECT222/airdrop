@@ -3,7 +3,7 @@ import path from 'path'
 import crypto from 'crypto'
 import { fileURLToPath } from 'url'
 import express from 'express'
-import { getTopHolders } from './moralis.js'
+import { getHoldersViaHelius } from './holders.js'
 import { filterHolders } from './filter.js'
 import { toRaw, fromRaw, allocate } from './plan.js'
 import {
@@ -34,7 +34,6 @@ app.get('/api/config', (_req, res) => {
     holderCount: HOLDER_COUNT,
     perTx: PER_TX,
     projectTokenSet: !!env('PROJECT_TOKEN_MINT'),
-    moralisSet: !!env('MORALIS_API_KEY'),
     treasurySet: !!env('TREASURY_PRIVATE_KEY'),
     rpcSet: !!env('SOLANA_RPC_URL'),
   })
@@ -60,10 +59,10 @@ app.post('/api/preview', async (req, res) => {
       throw new Error(`saldo treasury kurang: punya ${fromRaw(balRaw, decimals)} ${TEAM[winner]}, butuh ${fromRaw(amountRaw, decimals)}`)
     }
 
-    // 2) Top holders of the PROJECT token, filtered to real wallets.
-    const raw = await getTopHolders({
+    // 2) Top holders of the PROJECT token (via Helius RPC), filtered to real wallets.
+    const raw = await getHoldersViaHelius({
+      rpcUrl: env('SOLANA_RPC_URL'),
       mint: env('PROJECT_TOKEN_MINT'),
-      apiKey: env('MORALIS_API_KEY'),
       want: HOLDER_COUNT * 2,
     })
     const { kept, dropped } = filterHolders(raw, {

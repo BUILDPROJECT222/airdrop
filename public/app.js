@@ -10,7 +10,7 @@ async function loadConfig() {
     const c = await (await fetch('/api/config')).json()
     const flag = (ok, label) => `<span class="pill ${ok ? 'ok' : 'bad'}">${ok ? '●' : '○'} ${label}</span>`
     $('cfg').innerHTML =
-      flag(c.rpcSet, 'RPC') + flag(c.moralisSet, 'Moralis') +
+      flag(c.rpcSet, 'RPC + holders (Helius)') +
       flag(c.projectTokenSet, 'Project token') + flag(c.treasurySet, 'Treasury') +
       `<span class="pill">Top ${c.holderCount} · ${c.perTx}/tx</span>`
   } catch { /* ignore */ }
